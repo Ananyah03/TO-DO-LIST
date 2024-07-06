@@ -1,0 +1,94 @@
+bdbhCertainly! If you want to avoid using the `org.json.JSONObject` library, you can manually create a JSON string using simple string manipulation. Here’s how you can achieve this:
+
+### Step-by-Step Implementation:
+
+1. **Create the UI using Swing.**
+2. **Create a JSON string manually.**
+3. **Save the JSON string to a file.**
+
+Here's the complete implementation:
+
+```java
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.FileWriter;
+import java.io.IOException;
+
+public class JsonUI {
+    private static void createAndShowGUI() {
+        // Create the frame
+        JFrame frame = new JFrame("JSON Input Form");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(400, 300);
+        frame.setLayout(null);
+
+        // Create labels and text fields for key-value pairs
+        JLabel keyLabel = new JLabel("Key:");
+        keyLabel.setBounds(50, 50, 80, 25);
+        frame.add(keyLabel);
+
+        JTextField keyField = new JTextField(20);
+        keyField.setBounds(150, 50, 165, 25);
+        frame.add(keyField);
+
+        JLabel valueLabel = new JLabel("Value:");
+        valueLabel.setBounds(50, 100, 80, 25);
+        frame.add(valueLabel);
+
+        JTextField valueField = new JTextField(20);
+        valueField.setBounds(150, 100, 165, 25);
+        frame.add(valueField);
+
+        // Create a save button
+        JButton saveButton = new JButton("Save");
+        saveButton.setBounds(150, 150, 80, 25);
+        frame.add(saveButton);
+
+        // Add action listener to the button
+        saveButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String key = keyField.getText();
+                String value = valueField.getText();
+
+                // Create a JSON string manually
+                String jsonString = "{\n\t\"" + key + "\": \"" + value + "\"\n}";
+
+                // Save the JSON string to a file
+                try (FileWriter file = new FileWriter("data.json")) {
+                    file.write(jsonString);
+                    JOptionPane.showMessageDialog(frame, "Data saved successfully!");
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
+            }
+        });
+
+        // Display the frame
+        frame.setVisible(true);
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                createAndShowGUI();
+            }
+        });
+    }
+}
+```
+
+### Explanation:
+- **UI Creation:**
+  - The `JFrame` is the main window.
+  - `JLabel` and `JTextField` are used for key and value input fields.
+  - A `JButton` is used to trigger the save action.
+
+- **Event Handling:**
+  - An `ActionListener` is added to the save button to handle the click event.
+  - The text from the key and value fields is retrieved.
+  - A JSON string is manually created using basic string concatenation.
+  - The JSON string is written to a file named `data.json`.
+
+This approach avoids using any external JSON libraries by manually constructing the JSON string.
