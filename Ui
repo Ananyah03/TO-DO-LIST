@@ -1,94 +1,218 @@
-bdbhCertainly! If you want to avoid using the `org.json.JSONObject` library, you can manually create a JSON string using simple string manipulation. Here’s how you can achieve this:
-
-### Step-by-Step Implementation:
-
-1. **Create the UI using Swing.**
-2. **Create a JSON string manually.**
-3. **Save the JSON string to a file.**
-
-Here's the complete implementation:
-
-```java
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class JsonUI {
-    private static void createAndShowGUI() {
-        // Create the frame
-        JFrame frame = new JFrame("JSON Input Form");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(400, 300);
-        frame.setLayout(null);
-
-        // Create labels and text fields for key-value pairs
-        JLabel keyLabel = new JLabel("Key:");
-        keyLabel.setBounds(50, 50, 80, 25);
-        frame.add(keyLabel);
-
-        JTextField keyField = new JTextField(20);
-        keyField.setBounds(150, 50, 165, 25);
-        frame.add(keyField);
-
-        JLabel valueLabel = new JLabel("Value:");
-        valueLabel.setBounds(50, 100, 80, 25);
-        frame.add(valueLabel);
-
-        JTextField valueField = new JTextField(20);
-        valueField.setBounds(150, 100, 165, 25);
-        frame.add(valueField);
-
-        // Create a save button
-        JButton saveButton = new JButton("Save");
-        saveButton.setBounds(150, 150, 80, 25);
-        frame.add(saveButton);
-
-        // Add action listener to the button
-        saveButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String key = keyField.getText();
-                String value = valueField.getText();
-
-                // Create a JSON string manually
-                String jsonString = "{\n\t\"" + key + "\": \"" + value + "\"\n}";
-
-                // Save the JSON string to a file
-                try (FileWriter file = new FileWriter("data.json")) {
-                    file.write(jsonString);
-                    JOptionPane.showMessageDialog(frame, "Data saved successfully!");
-                } catch (IOException ioException) {
-                    ioException.printStackTrace();
-                }
-            }
-        });
-
-        // Display the frame
-        frame.setVisible(true);
-    }
+    private static List<User> users = new ArrayList<>();
+    private static JPanel mainPanel;
+    private static JFrame frame;
 
     public static void main(String[] args) {
+        try {
+            // Set Nimbus look and feel for a modern UI
+            for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 createAndShowGUI();
             }
         });
     }
+
+    private static void createAndShowGUI() {
+        frame = new JFrame("User Input Form");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(800, 600);
+        frame.setLayout(new BorderLayout());
+
+        mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+
+        addUserInputFields();
+
+        frame.add(new JScrollPane(mainPanel), BorderLayout.CENTER);
+        frame.setVisible(true);
+    }
+
+    private static void addUserInputFields() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridBagLayout());
+        panel.setBorder(BorderFactory.createTitledBorder("User Details"));
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+
+        JLabel nameLabel = new JLabel("Name:");
+        nameLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.anchor = GridBagConstraints.LINE_END;
+        panel.add(nameLabel, gbc);
+
+        JTextField nameField = new JTextField(20);
+        nameField.setFont(new Font("Arial", Font.PLAIN, 16));
+        nameField.setToolTipText("name");
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        gbc.anchor = GridBagConstraints.LINE_START;
+        panel.add(nameField, gbc);
+
+        JLabel passwordLabel = new JLabel("Password:");
+        passwordLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.anchor = GridBagConstraints.LINE_END;
+        panel.add(passwordLabel, gbc);
+
+        JPasswordField passwordField = new JPasswordField(20);
+        passwordField.setFont(new Font("Arial", Font.PLAIN, 16));
+        passwordField.setToolTipText("password");
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        gbc.anchor = GridBagConstraints.LINE_START;
+        panel.add(passwordField, gbc);
+
+        JLabel emailLabel = new JLabel("Email:");
+        emailLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.anchor = GridBagConstraints.LINE_END;
+        panel.add(emailLabel, gbc);
+
+        JTextField emailField = new JTextField(20);
+        emailField.setFont(new Font("Arial", Font.PLAIN, 16));
+        emailField.setToolTipText("email");
+        gbc.gridx = 1;
+        gbc.gridy = 2;
+        gbc.anchor = GridBagConstraints.LINE_START;
+        panel.add(emailField, gbc);
+
+        JButton addButton = new JButton("Add Another User");
+        addButton.setFont(new Font("Arial", Font.BOLD, 16));
+        addButton.setBackground(new Color(100, 149, 237));
+        addButton.setForeground(Color.WHITE);
+        addButton.setFocusPainted(false);
+        addButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                addUserInputFields();
+                frame.revalidate();
+                frame.repaint();
+            }
+        });
+
+        JButton saveButton = new JButton("Save");
+        saveButton.setFont(new Font("Arial", Font.BOLD, 16));
+        saveButton.setBackground(new Color(60, 179, 113));
+        saveButton.setForeground(Color.WHITE);
+        saveButton.setFocusPainted(false);
+        saveButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                saveDataToJson(panel, nameField, passwordField, emailField);
+            }
+        });
+
+        JButton deleteButton = new JButton("Delete");
+        deleteButton.setFont(new Font("Arial", Font.BOLD, 16));
+        deleteButton.setBackground(new Color(255, 69, 0));
+        deleteButton.setForeground(Color.WHITE);
+        deleteButton.setFocusPainted(false);
+        deleteButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                mainPanel.remove(panel);
+                frame.revalidate();
+                frame.repaint();
+            }
+        });
+
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new FlowLayout());
+        buttonPanel.add(addButton);
+        buttonPanel.add(saveButton);
+        buttonPanel.add(deleteButton);
+
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.CENTER;
+        panel.add(buttonPanel, gbc);
+
+        mainPanel.add(panel);
+
+        nameField.requestFocusInWindow();
+    }
+
+    private static void saveDataToJson(JPanel userPanel, JTextField nameField, JPasswordField passwordField, JTextField emailField) {
+        String name = nameField.getText();
+        String password = new String(passwordField.getPassword());
+        String email = emailField.getText();
+
+        if (name.isEmpty() || password.isEmpty() || email.isEmpty()) {
+            JOptionPane.showMessageDialog(frame, "Please fill in all fields before saving.", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        User user = new User(name, password, email);
+        users.add(user);
+
+        StringBuilder jsonBuilder = new StringBuilder();
+        jsonBuilder.append("[\n");
+        for (User u : users) {
+            jsonBuilder.append("\t{\n");
+            jsonBuilder.append("\t\t\"name\": \"").append(u.getName()).append("\",\n");
+            jsonBuilder.append("\t\t\"password\": \"").append(u.getPassword()).append("\",\n");
+            jsonBuilder.append("\t\t\"email\": \"").append(u.getEmail()).append("\"\n");
+            jsonBuilder.append("\t},\n");
+        }
+        // Remove the trailing comma and newline
+        if (users.size() > 0) {
+            jsonBuilder.setLength(jsonBuilder.length() - 2);
+        }
+        jsonBuilder.append("\n]");
+
+        try (FileWriter file = new FileWriter("users.json")) {
+            file.write(jsonBuilder.toString());
+            JOptionPane.showMessageDialog(frame, "Data saved successfully!");
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        }
+    }
 }
-```
 
-### Explanation:
-- **UI Creation:**
-  - The `JFrame` is the main window.
-  - `JLabel` and `JTextField` are used for key and value input fields.
-  - A `JButton` is used to trigger the save action.
+class User {
+    private String name;
+    private String password;
+    private String email;
 
-- **Event Handling:**
-  - An `ActionListener` is added to the save button to handle the click event.
-  - The text from the key and value fields is retrieved.
-  - A JSON string is manually created using basic string concatenation.
-  - The JSON string is written to a file named `data.json`.
+    public User(String name, String password, String email) {
+        this.name = name;
+        this.password = password;
+        this.email = email;
+    }
 
-This approach avoids using any external JSON libraries by manually constructing the JSON string.
+    public String getName() {
+        return name;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+}
