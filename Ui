@@ -7,212 +7,291 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class JsonUI {
-    private static List<User> users = new ArrayList<>();
-    private static JPanel mainPanel;
-    private static JFrame frame;
+public class JsonUI extends JFrame {
+    private List<PluginData> familyPlugins;
+    private List<ScriptData> setupScripts;
+    private JPanel inputPanel;
+    private JPanel scriptPanel;
 
-    public static void main(String[] args) {
-        try {
-            // Set Nimbus look and feel for a modern UI
-            for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public JsonUI() {
+        familyPlugins = new ArrayList<>();
+        setupScripts = new ArrayList<>();
 
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                createAndShowGUI();
-            }
-        });
+        setTitle("Family Plugins and Setup Scripts Input");
+        setSize(800, 600);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+
+        JTabbedPane tabbedPane = new JTabbedPane();
+
+        // Family Plugins Panel
+        inputPanel = new JPanel();
+        inputPanel.setLayout(new BoxLayout(inputPanel, BoxLayout.Y_AXIS));
+        addPluginInputFields(); // Add the first set of input fields
+
+        tabbedPane.add("Family Plugins", new JScrollPane(inputPanel));
+
+        // Setup Scripts Panel
+        scriptPanel = new JPanel();
+        scriptPanel.setLayout(new BoxLayout(scriptPanel, BoxLayout.Y_AXIS));
+        addScriptInputFields(); // Add the first set of input fields
+
+        tabbedPane.add("Setup Scripts", new JScrollPane(scriptPanel));
+
+        add(tabbedPane, BorderLayout.CENTER);
     }
 
-    private static void createAndShowGUI() {
-        frame = new JFrame("User Input Form");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(800, 600);
-        frame.setLayout(new BorderLayout());
-
-        mainPanel = new JPanel();
-        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-
-        addUserInputFields();
-
-        frame.add(new JScrollPane(mainPanel), BorderLayout.CENTER);
-        frame.setVisible(true);
-    }
-
-    private static void addUserInputFields() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridBagLayout());
-        panel.setBorder(BorderFactory.createTitledBorder("User Details"));
+    private void addPluginInputFields() {
+        JPanel panel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        JLabel nameLabel = new JLabel("Name:");
-        nameLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        JLabel typeLabel = new JLabel("Type:");
+        JTextField typeField = new JTextField(20);
+
+        JLabel idLabel = new JLabel("ID:");
+        JTextField idField = new JTextField(20);
+
         gbc.gridx = 0;
         gbc.gridy = 0;
-        gbc.anchor = GridBagConstraints.LINE_END;
-        panel.add(nameLabel, gbc);
+        panel.add(typeLabel, gbc);
 
-        JTextField nameField = new JTextField(20);
-        nameField.setFont(new Font("Arial", Font.PLAIN, 16));
-        nameField.setToolTipText("name");
         gbc.gridx = 1;
         gbc.gridy = 0;
-        gbc.anchor = GridBagConstraints.LINE_START;
-        panel.add(nameField, gbc);
+        panel.add(typeField, gbc);
 
-        JLabel passwordLabel = new JLabel("Password:");
-        passwordLabel.setFont(new Font("Arial", Font.BOLD, 16));
         gbc.gridx = 0;
         gbc.gridy = 1;
-        gbc.anchor = GridBagConstraints.LINE_END;
-        panel.add(passwordLabel, gbc);
+        panel.add(idLabel, gbc);
 
-        JPasswordField passwordField = new JPasswordField(20);
-        passwordField.setFont(new Font("Arial", Font.PLAIN, 16));
-        passwordField.setToolTipText("password");
         gbc.gridx = 1;
         gbc.gridy = 1;
-        gbc.anchor = GridBagConstraints.LINE_START;
-        panel.add(passwordField, gbc);
+        panel.add(idField, gbc);
 
-        JLabel emailLabel = new JLabel("Email:");
-        emailLabel.setFont(new Font("Arial", Font.BOLD, 16));
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        gbc.anchor = GridBagConstraints.LINE_END;
-        panel.add(emailLabel, gbc);
+        inputPanel.add(panel);
 
-        JTextField emailField = new JTextField(20);
-        emailField.setFont(new Font("Arial", Font.PLAIN, 16));
-        emailField.setToolTipText("email");
-        gbc.gridx = 1;
-        gbc.gridy = 2;
-        gbc.anchor = GridBagConstraints.LINE_START;
-        panel.add(emailField, gbc);
-
-        JButton addButton = new JButton("Add Another User");
-        addButton.setFont(new Font("Arial", Font.BOLD, 16));
-        addButton.setBackground(new Color(100, 149, 237));
-        addButton.setForeground(Color.WHITE);
-        addButton.setFocusPainted(false);
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton addButton = new JButton("Add Another");
         addButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                addUserInputFields();
-                frame.revalidate();
-                frame.repaint();
+                addPluginInputFields();
             }
         });
+        buttonPanel.add(addButton);
 
         JButton saveButton = new JButton("Save");
-        saveButton.setFont(new Font("Arial", Font.BOLD, 16));
-        saveButton.setBackground(new Color(60, 179, 113));
-        saveButton.setForeground(Color.WHITE);
-        saveButton.setFocusPainted(false);
         saveButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                saveDataToJson(panel, nameField, passwordField, emailField);
+                String type = typeField.getText();
+                String id = idField.getText();
+
+                if (!type.isEmpty() && !id.isEmpty()) {
+                    familyPlugins.add(new PluginData(type, id));
+                    JOptionPane.showMessageDialog(JsonUI.this, "Plugin saved!");
+                    saveToJson();
+                } else {
+                    JOptionPane.showMessageDialog(JsonUI.this, "Please fill in all fields.");
+                }
             }
         });
+        buttonPanel.add(saveButton);
 
         JButton deleteButton = new JButton("Delete");
-        deleteButton.setFont(new Font("Arial", Font.BOLD, 16));
-        deleteButton.setBackground(new Color(255, 69, 0));
-        deleteButton.setForeground(Color.WHITE);
-        deleteButton.setFocusPainted(false);
         deleteButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                mainPanel.remove(panel);
-                frame.revalidate();
-                frame.repaint();
+                int option = JOptionPane.showConfirmDialog(JsonUI.this, "Are you sure you want to delete this entry?", "Confirmation", JOptionPane.YES_NO_OPTION);
+                if (option == JOptionPane.YES_OPTION) {
+                    inputPanel.remove(panel);
+                    inputPanel.remove(buttonPanel);
+                    inputPanel.revalidate();
+                    inputPanel.repaint();
+                    familyPlugins.removeIf(plugin -> plugin.type.equals(typeField.getText()) && plugin.id.equals(idField.getText()));
+                    saveToJson(); // Update JSON after deletion
+                }
             }
         });
-
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new FlowLayout());
-        buttonPanel.add(addButton);
-        buttonPanel.add(saveButton);
         buttonPanel.add(deleteButton);
 
+        inputPanel.add(buttonPanel);
+        inputPanel.revalidate();
+        inputPanel.repaint();
+    }
+
+    private void addScriptInputFields() {
+        JPanel panel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        JLabel typeLabel = new JLabel("Type:");
+        JTextField typeField = new JTextField(20);
+
+        JLabel nameLabel = new JLabel("Name:");
+        JTextField nameField = new JTextField(20);
+
+        JLabel scriptLabel = new JLabel("Script:");
+        JTextArea scriptField = new JTextArea(10, 20);
+        scriptField.setLineWrap(true);
+        scriptField.setWrapStyleWord(true);
+        JScrollPane scrollPane = new JScrollPane(scriptField);
+
         gbc.gridx = 0;
-        gbc.gridy = 3;
+        gbc.gridy = 0;
+        panel.add(typeLabel, gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        panel.add(typeField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        panel.add(nameLabel, gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        panel.add(nameField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        panel.add(scriptLabel, gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 2;
         gbc.gridwidth = 2;
-        gbc.anchor = GridBagConstraints.CENTER;
-        panel.add(buttonPanel, gbc);
+        gbc.fill = GridBagConstraints.BOTH;
+        panel.add(scrollPane, gbc);
 
-        mainPanel.add(panel);
+        scriptPanel.add(panel);
 
-        nameField.requestFocusInWindow();
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton addButton = new JButton("Add Another");
+        addButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                addScriptInputFields();
+            }
+        });
+        buttonPanel.add(addButton);
+
+        JButton saveButton = new JButton("Save");
+        saveButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String type = typeField.getText();
+                String name = nameField.getText();
+                String script = scriptField.getText();
+
+                if (!type.isEmpty() && !name.isEmpty() && !script.isEmpty()) {
+                    setupScripts.add(new ScriptData(type, name, script));
+                    JOptionPane.showMessageDialog(JsonUI.this, "Script saved!");
+                    saveToJson();
+                } else {
+                    JOptionPane.showMessageDialog(JsonUI.this, "Please fill in all fields.");
+                }
+            }
+        });
+        buttonPanel.add(saveButton);
+
+        JButton deleteButton = new JButton("Delete");
+        deleteButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int option = JOptionPane.showConfirmDialog(JsonUI.this, "Are you sure you want to delete this entry?", "Confirmation", JOptionPane.YES_NO_OPTION);
+                if (option == JOptionPane.YES_OPTION) {
+                    scriptPanel.remove(panel);
+                    scriptPanel.remove(buttonPanel);
+                    scriptPanel.revalidate();
+                    scriptPanel.repaint();
+                    setupScripts.removeIf(script -> script.type.equals(typeField.getText()) && script.name.equals(nameField.getText()) && script.script.equals(scriptField.getText()));
+                    saveToJson(); // Update JSON after deletion
+                }
+            }
+        });
+        buttonPanel.add(deleteButton);
+
+        scriptPanel.add(buttonPanel);
+        scriptPanel.revalidate();
+        scriptPanel.repaint();
     }
 
-    private static void saveDataToJson(JPanel userPanel, JTextField nameField, JPasswordField passwordField, JTextField emailField) {
-        String name = nameField.getText();
-        String password = new String(passwordField.getPassword());
-        String email = emailField.getText();
-
-        if (name.isEmpty() || password.isEmpty() || email.isEmpty()) {
-            JOptionPane.showMessageDialog(frame, "Please fill in all fields before saving.", "Validation Error", JOptionPane.ERROR_MESSAGE);
-            return;
+    private void saveToJson() {
+        try (FileWriter writer = new FileWriter("family_plugins_and_setup_scripts.json")) {
+            writer.write(toJsonString());
+            JOptionPane.showMessageDialog(this, "Data saved to family_plugins_and_setup_scripts.json");
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this, "Error saving to JSON file: " + e.getMessage());
         }
+    }
 
-        User user = new User(name, password, email);
-        users.add(user);
+    private String toJsonString() {
+        StringBuilder json = new StringBuilder();
+        json.append("{\n");
 
-        StringBuilder jsonBuilder = new StringBuilder();
-        jsonBuilder.append("[\n");
-        for (User u : users) {
-            jsonBuilder.append("\t{\n");
-            jsonBuilder.append("\t\t\"name\": \"").append(u.getName()).append("\",\n");
-            jsonBuilder.append("\t\t\"password\": \"").append(u.getPassword()).append("\",\n");
-            jsonBuilder.append("\t\t\"email\": \"").append(u.getEmail()).append("\"\n");
-            jsonBuilder.append("\t},\n");
+        json.append("  \"familyPlugins\": [\n");
+        for (int i = 0; i < familyPlugins.size(); i++) {
+            PluginData plugin = familyPlugins.get(i);
+            json.append("    {\n");
+            json.append("      \"type\": \"").append(plugin.type).append("\",\n");
+            json.append("      \"id\": \"").append(plugin.id).append("\"\n");
+            if (i < familyPlugins.size() - 1) {
+                json.append("    },\n");
+            } else {
+                json.append("    }\n");
+            }
         }
-        // Remove the trailing comma and newline
-        if (users.size() > 0) {
-            jsonBuilder.setLength(jsonBuilder.length() - 2);
+        json.append("  ],\n");
+
+        json.append("  \"setupScripts\": [\n");
+        for (int i = 0; i < setupScripts.size(); i++) {
+            ScriptData script = setupScripts.get(i);
+            json.append("    {\n");
+            json.append("      \"type\": \"").append(script.type).append("\",\n");
+            json.append("      \"name\": \"").append(script.name).append("\",\n");
+            json.append("      \"script\": \"").append(script.script.replace("\n", "\\n").replace("\"", "\\\"")).append("\"\n");
+            if (i < setupScripts.size() - 1) {
+                json.append("    },\n");
+            } else {
+                json.append("    }\n");
+            }
         }
-        jsonBuilder.append("\n]");
+        json.append("  ]\n");
 
-        try (FileWriter file = new FileWriter("users.json")) {
-            file.write(jsonBuilder.toString());
-            JOptionPane.showMessageDialog(frame, "Data saved successfully!");
-        } catch (IOException ioException) {
-            ioException.printStackTrace();
+        json.append("}\n");
+        return json.toString();
+    }
+
+    private static class PluginData {
+        String type;
+        String id;
+
+        PluginData(String type, String id) {
+            this.type = type;
+            this.id = id;
         }
     }
-}
 
-class User {
-    private String name;
-    private String password;
-    private String email;
+    private static class ScriptData {
+        String type;
+        String name;
+        String script;
 
-    public User(String name, String password, String email) {
-        this.name = name;
-        this.password = password;
-        this.email = email;
+        ScriptData(String type, String name, String script) {
+            this.type = type;
+            this.name = name;
+            this.script = script;
+        }
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public String getEmail() {
-        return email;
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                new JsonUI().setVisible(true);
+            }
+        });
     }
 }
