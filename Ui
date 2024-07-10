@@ -201,15 +201,7 @@ public class JsonUI extends JFrame {
         }
         js.append("];\n\n");
 
-        js.append("module.exports = {\n");
-        js.append("    instanceURL: 'https://perftestva.service-now.com/',\n");
-        js.append("    username: 'anusha.manchala@snc',\n");
-        js.append("    password: 'MDwCHEcdSeC/X4bKNWRfXAgRolW/UgUL6hHamuhLEm8CHBim67Av3+9rTsy3X9AJ5J8iZfta6Lw9s8dZB0g=',\n");
-        js.append("    tasks: [\n");
-        js.append("        ...familyPlugins,\n");
-        js.append("        ...setupScripts\n");
-        js.append("    ]\n");
-        js.append("};\n");
+       
 
         return js.toString();
     }
